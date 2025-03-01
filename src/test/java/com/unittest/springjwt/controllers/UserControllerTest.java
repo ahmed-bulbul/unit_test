@@ -16,13 +16,14 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.List;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -37,6 +38,11 @@ public class UserControllerTest {
 
     @MockBean
     private UserService userService;
+
+
+    /**
+     * This is test using MockSecurityContext manually
+     * */
 
     @Test
     public void testGetUsers_WithMockSecurityContext() throws Exception {
@@ -56,14 +62,42 @@ public class UserControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/api/user")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(1L))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].username").value("Test User")) // Changed from "name" to "username"
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].email").value("testuser@example.com"));
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].username").value("Test User")) // Changed from "name" to "username"
+                .andExpect(jsonPath("$[0].email").value("testuser@example.com"));
 
 
-       // System.out.println(result.getResponse().getContentAsString());
+    }
 
+    @Test
+    @WithMockUser(username = "testuser", roles = "USER")  // Mock authenticated user
+    public void getUsers_ReturnsUserList_WhenUsersExist() throws Exception {
+        User mockUser = new User(1L, "Test User", "testuser@example.com");
 
+        when(userService.get()).thenReturn(List.of(mockUser));
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/user")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1)) // Checks list size
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].username").value("Test User"))
+                .andExpect(jsonPath("$[0].email").value("testuser@example.com"));
+
+        verify(userService, times(1)).get();
+    }
+
+    @Test
+    @WithMockUser(username = "testuser", roles = "USER") // Mock authenticated user
+    public void getUsers_ReturnsEmptyList_WhenNoUsersExist() throws Exception {
+        when(userService.get()).thenReturn(List.of());
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/user")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0)); // Asserts empty list
+
+        verify(userService, times(1)).get();
     }
 
 }

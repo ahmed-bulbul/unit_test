@@ -47,9 +47,9 @@ public class User {
     this.password = password;
   }
 
-  public User(long l, String testuser, String mail) {
+  public User(long l, String username, String mail) {
     this.id=l;
-    this.username=testuser;
+    this.username=username;
     this.email=mail;
 
   }
