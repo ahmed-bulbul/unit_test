@@ -80,6 +80,9 @@ public class AuthControllerTest {
 
     }
 
+    /*
+    * test case to check if user registration is successful
+    * */
     @Test
     public void testRegisterUser_Success() throws Exception {
         SignupRequest signupRequest = new SignupRequest("newuser", "newuser@example.com", "password", Set.of("user"));
