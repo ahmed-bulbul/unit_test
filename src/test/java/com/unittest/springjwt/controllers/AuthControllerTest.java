@@ -111,6 +111,7 @@ public class AuthControllerTest {
 
     /**
      * test case to check if email is already in use
+     * update
      * */
     @Test
     public void testRegisterUser_EmailAlreadyExists() throws Exception {
