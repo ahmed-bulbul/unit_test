@@ -96,6 +96,9 @@ public class AuthControllerTest {
                 .andExpect(jsonPath("$.message").value("User registered successfully!"));
     }
 
+    /**
+     * test case to check if username is already in use
+     * * */
     @Test
     public void testRegisterUser_UsernameAlreadyExists() throws Exception {
         SignupRequest signupRequest = new SignupRequest("existinguser", "existinguser@example.com", "password", Set.of("user"));
