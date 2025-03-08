@@ -17,6 +17,9 @@ class UserRepositoryTest {
     @MockBean
     private UserRepository userRepository;
 
+    /*
+    * Test case to check if findByUsername method returns the correct user
+    * */
     @Test
     void findByUsername() {
         // Arrange: Create a mock user and define repository behavior
